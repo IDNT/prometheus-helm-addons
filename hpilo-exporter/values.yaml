@@ -100,7 +100,7 @@ monitoring:
 
 network:
   hpilo_exporter:
-    port: 9100
+    port: 9416
 
 endpoints:
   cluster_domain_suffix: cluster.local
