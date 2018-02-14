@@ -1,4 +1,4 @@
-# prometheus-helm
+# prometheus-helm-addons
 
 Provides kubernetes helm charts for prometheus. The 
 charts are intended as an addon to prometheus deployed 
