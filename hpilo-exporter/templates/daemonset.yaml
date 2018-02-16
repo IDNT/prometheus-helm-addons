@@ -22,13 +22,13 @@ limitations under the License.
 {{- $_ := set .Values "pod_dependency" .Values.dependencies.hpilo_exporter -}}
 {{- end -}}
 
-{{- $serviceAccountName := "hpilo-exporter"}}
+{{- $serviceAccountName := (printf "hpilo-exporter-%s" (.Values.endpoints.hpilo_metrics.name)) }}
 {{ tuple $envAll $envAll.Values.pod_dependency $serviceAccountName | include "helm-toolkit.snippets.kubernetes_pod_rbac_serviceaccount" }}
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: hpilo-exporter
+  name: metrics-{{ .Values.endpoints.hpilo_metrics.name }}
   namespace: {{ .Values.endpoints.hpilo_metrics.namespace }}
 spec:
 {{ tuple $envAll "hpilo_exporter" | include "helm-toolkit.snippets.kubernetes_upgrades_daemonset" | indent 2 }}
@@ -41,17 +41,25 @@ spec:
       serviceAccountName: {{ $serviceAccountName }}
       nodeSelector:
         {{ .Values.labels.node_selector_key }}: {{ .Values.labels.node_selector_value }}
-      hostNetwork: true
-      hostPID: true
       initContainers:
 {{ tuple $envAll .Values.pod_dependency list | include "helm-toolkit.snippets.kubernetes_entrypoint_init_container" | indent 8 }}
       containers:
-        - name: hpilo-exporter
+        - name: metrics-{{ .Values.endpoints.hpilo_metrics.name }}
 {{ tuple $envAll "hpilo_exporter" | include "helm-toolkit.snippets.image" | indent 10 }}
+          env:
+            - name: ILO_USER
+              value: "{{ .Values.monitoring.ilo.user }}"
+            - name: ILO_PORT
+              value: "{{ .Values.monitoring.ilo.port }}"
+            - name: ILO_HOST
+              value: "{{ .Values.monitoring.ilo.host }}"
+            - name: ILO_PASSWORD
+              value: "{{ .Values.monitoring.ilo.password }}"
+            - name: ILO_CACHED
+              value: "true"
           ports:
             - name: metrics
-              containerPort: {{ .Values.network.hpilo_exporter.port }}
-              hostPort: {{ .Values.network.hpilo_exporter.port }}
+              containerPort: {{ tuple "hpilo_metrics" "internal" "metrics" . | include "helm-toolkit.endpoints.endpoint_port_lookup" }}
 {{ tuple $envAll $envAll.Values.pod.resources.hpilo_exporter | include "helm-toolkit.snippets.kubernetes_resources" | indent 10 }}
           volumeMounts:
             - name: proc

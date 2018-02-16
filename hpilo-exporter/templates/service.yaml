@@ -21,7 +21,7 @@ limitations under the License.
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ tuple "hpilo_metrics" "internal" . | include "helm-toolkit.endpoints.hostname_short_endpoint_lookup" }}
+  name: metrics-{{ .Values.endpoints.hpilo_metrics.name }}
   labels:
 {{ tuple $envAll "hpilo_exporter" "metrics" | include "helm-toolkit.snippets.kubernetes_metadata_labels" | indent 4 }}
   annotations:
@@ -29,12 +29,10 @@ metadata:
 {{ tuple $prometheus_annotations | include "helm-toolkit.snippets.prometheus_service_annotations" | indent 4 }}
 {{- end }}
 spec:
-  type: ClusterIP
   clusterIP: None
   ports:
   - name: metrics
-    port: {{ .Values.network.hpilo_exporter.port }}
-    targetPort: {{ .Values.network.hpilo_exporter.port }}
+    port: {{ tuple "hpilo_metrics" "internal" "metrics" . | include "helm-toolkit.endpoints.endpoint_port_lookup" }}
   selector:
 {{ tuple $envAll "hpilo_exporter" "metrics" | include "helm-toolkit.snippets.kubernetes_metadata_labels" | indent 4 }}
 {{- end }}

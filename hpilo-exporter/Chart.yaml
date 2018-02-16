@@ -14,11 +14,11 @@
 
 apiVersion: v1
 description: HP ILO Exporter for Prometheus
-name: prometheus-hpilo-exporter
+name: hpilo-exporter
 version: 0.1.0
-home: https://github.com/IDNT/prometheus-helm
+home: https://github.com/IDNT/prometheus-helm-addons
 sources:
-  - https://github.com/IDNT/prometheus-helm
-  - https://github.com/IDNT/prometheus-exporter-hpilo
+  - https://github.com/IDNT/prometheus-helm-addons
+  - https://github.com/IDNT/hpilo-exporter
 maintainers:
   - name: IDNT

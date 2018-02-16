@@ -18,7 +18,7 @@
 
 images:
   tags:
-    hpilo_exporter: docker.io/idnt/hpilo-exporter:latest
+    hpilo_exporter: docker.io/idnt/hpilo-exporter:v0.3.8
     dep_check: quay.io/stackanetes/kubernetes-entrypoint:v0.2.1
     image_repo_sync: docker.io/docker:17.07.0
   pull_policy: IfNotPresent
@@ -43,11 +43,13 @@ pod:
     hpilo_exporter:
       hpilo_exporter:
       init_container: null
+  replicas:
+      server: 1
   lifecycle:
     upgrades:
       daemonsets:
         pod_replacement_strategy: RollingUpdate
-        node_exporter:
+        hpilo_exporter:
           enabled: true
           min_ready_seconds: 0
       revision_history: 3
@@ -56,7 +58,7 @@ pod:
         max_unavailable: 1
         max_surge: 3
     termination_grace_period:
-      node_exporter:
+      hpilo_exporter:
         timeout: 30
   resources:
     enabled: false
@@ -95,13 +97,14 @@ conditional_dependencies:
 monitoring:
   prometheus:
     enabled: true
-    node_exporter:
+    hpilo_exporter:
       scrape: true
-
-network:
-  hpilo_exporter:
-    port: 9416
-
+  ilo:
+    user: Administrator
+    port: 443
+    host: localhost
+    password: secret
+    
 endpoints:
   cluster_domain_suffix: cluster.local
   local_image_registry:
@@ -117,6 +120,7 @@ endpoints:
       registry:
         node: 5000
   hpilo_metrics:
+    name: hpilo-exporter
     namespace: null
     hosts:
       default: hpilo-exporter
@@ -129,12 +133,10 @@ endpoints:
     port:
       metrics:
         default: 9416
-      prometheus_port:
-        default: 9416
 
 manifests:
-  configmap_bin: true
-  clusterrolebinding: true
+  configmap_bin: false
+  clusterrolebinding: false
   daemonset: true
   job_image_repo_sync: true
   service: true
