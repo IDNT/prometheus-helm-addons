@@ -34,6 +34,6 @@ helm install --namespace=metrics --name=metrics-ilo hpilo-exporter --set endpoin
 In case you have deployed prometheus using the openstack-helm-infra charts, you should disble automatic scraping by adding
 
 ```
---set monitoring.prometheus.hpilo_exporter.scape=false
+--set monitoring.prometheus.hpilo_exporter.srcape=false
 ```
 
